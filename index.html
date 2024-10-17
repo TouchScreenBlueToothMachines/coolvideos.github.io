@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CoolVideos</title>
+    <style>
+        body {
+            font-family: 'Verdana', sans-serif;
+            background-color: #87ceeb; /* Light blue background */
+            background-image: linear-gradient(135deg, #87ceeb, #e0ffff); /* Gradient background */
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            color: #333;
+        }
+        h1 {
+            margin-top: 20px;
+            font-size: 48px;
+            color: white;
+        }
+        .upload-button {
+            padding: 15px 30px;
+            font-size: 18px;
+            color: white;
+            background-color: #6495ed; /* Light blue button, simple style */
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .video-box {
+            width: 320px;
+            margin: 20px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            /* No shadows */
+        }
+        video {
+            width: 100%;
+        }
+        .filename {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #0056b3;
+            font-weight: bold;
+        }
+        footer {
+            margin-top: 50px;
+            font-size: 14px;
+            color: white;
+            background: rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>CoolVideos</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="videoFile" name="videoFile" accept="video/*">
+        <button type="submit" class="upload-button">Upload Video</button>
+    </form>
+    <div class="video-container" id="videoContainer"></div>
+
+    <footer>
+        &copy; 2024 CoolVideos.com
+    </footer>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            const fileInput = document.getElementById('videoFile');
+            formData.append('videoFile', fileInput.files[0]);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                loadVideos();
+            } else {
+                alert('File upload failed.');
+            }
+        });
+
+        async function loadVideos() {
+            const response = await fetch('/videos');
+            const videos = await response.json();
+            const videoContainer = document.getElementById('videoContainer');
+            videoContainer.innerHTML = '';
+
+            videos.forEach(video => {
+                const videoBox = document.createElement('div');
+                videoBox.className = 'video-box';
+
+                const videoElement = document.createElement('video');
+                videoElement.src = `/videos/${video}`;
+                videoElement.controls = true;
+                videoBox.appendChild(videoElement);
+
+                const filenameElement = document.createElement('div');
+                filenameElement.className = 'filename';
+                filenameElement.textContent = video;
+                videoBox.appendChild(filenameElement);
+
+                videoContainer.appendChild(videoBox);
+            });
+        }
+
+        loadVideos();
+    </script>
+</body>
+</html>
